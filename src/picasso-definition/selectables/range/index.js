@@ -7,7 +7,15 @@ import createBinYRange from './bin-y-range';
 const EMPTY = { components: [], interactions: [] };
 
 export default function createRange({ models, actions, scales, chart }) {
-  const { selectionService, dockService, colorService, layoutService, chartModel } = models;
+  const {
+    selectionService,
+    dockService,
+    colorService,
+    layoutService,
+    chartModel,
+    qIsDirectQueryMode,
+    qUnsupportedFeature,
+  } = models;
   const isSingleSelection = layoutService.getHyperCubeValue('qDimensionInfo.0.qIsOneAndOnlyOne', false);
   if (isSingleSelection) {
     return { components: [], interactions: [] };
@@ -17,39 +25,45 @@ export default function createRange({ models, actions, scales, chart }) {
 
   const dataHandler = chartModel.query.getDataHandler();
 
-  const xRange =
-    createXRange({
-      actions,
-      selectionService,
-      dockService,
-      enableInteraction: () => !dataHandler.getMeta().isBinnedData,
-    }) || EMPTY;
+  const isRangeSelectionsSupported = !qIsDirectQueryMode && !qUnsupportedFeature?.some((f) => f === 'rangeSelections');
 
-  const binXRange =
-    createBinXRange({
-      actions,
-      selectionService,
-      dockService,
-      chart,
-      enableInteraction: () => dataHandler.getMeta().isBinnedData,
-    }) || EMPTY;
+  const xRange = isRangeSelectionsSupported
+    ? createXRange({
+        actions,
+        selectionService,
+        dockService,
+        enableInteraction: () => !dataHandler.getMeta().isBinnedData,
+      }) || EMPTY
+    : EMPTY;
 
-  const yRange =
-    createYRange({
-      actions,
-      selectionService,
-      dockService,
-      enableInteraction: () => !dataHandler.getMeta().isBinnedData,
-    }) || EMPTY;
+  const binXRange = isRangeSelectionsSupported
+    ? createBinXRange({
+        actions,
+        selectionService,
+        dockService,
+        chart,
+        enableInteraction: () => dataHandler.getMeta().isBinnedData,
+      }) || EMPTY
+    : EMPTY;
 
-  const binYRange =
-    createBinYRange({
-      actions,
-      selectionService,
-      dockService,
-      chart,
-      enableInteraction: () => dataHandler.getMeta().isBinnedData,
-    }) || EMPTY;
+  const yRange = isRangeSelectionsSupported
+    ? createYRange({
+        actions,
+        selectionService,
+        dockService,
+        enableInteraction: () => !dataHandler.getMeta().isBinnedData,
+      }) || EMPTY
+    : EMPTY;
+
+  const binYRange = isRangeSelectionsSupported
+    ? createBinYRange({
+        actions,
+        selectionService,
+        dockService,
+        chart,
+        enableInteraction: () => dataHandler.getMeta().isBinnedData,
+      }) || EMPTY
+    : EMPTY;
 
   const legendRange =
     createLegend({
