@@ -196,8 +196,6 @@ const useModels = ({ core, flags }) => {
       tooltipService,
       propertiesModel,
       trendLinesService,
-      qIsDirectQueryMode,
-      qUnsupportedFeature,
     });
   }, [
     model,
