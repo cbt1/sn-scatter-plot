@@ -46,7 +46,11 @@ describe('range', () => {
     actions = { key: 'actions' };
     scales = { key: 'scales' };
     selectionService = { key: 'selection-service' };
-    layoutService = { key: 'layout-service', getHyperCubeValue: sandbox.stub() };
+    layoutService = {
+      key: 'layout-service',
+      getHyperCubeValue: sandbox.stub(),
+      meta: { isRangeSelectionsSupported: true },
+    };
     dockService = { key: 'dock-service' };
     colorService = {
       custom: {
@@ -114,6 +118,25 @@ describe('range', () => {
     expect(create()).to.deep.equal({
       components: [],
       interactions: [],
+    });
+  });
+
+  it('should return correct range composition when range selection is not supported', () => {
+    layoutService = {
+      ...layoutService,
+      meta: { isRangeSelectionsSupported: false },
+    };
+    models = { selectionService, dockService, colorService, layoutService, chartModel };
+    create = () =>
+      createRange({
+        models,
+        actions,
+        scales,
+        chart,
+      });
+    expect(create()).to.deep.equal({
+      components: [{ key: 'legend-component-0' }, { key: 'legend-component-1' }],
+      interactions: [{ key: 'legend-interaction-0' }, { key: 'legend-interaction-1' }],
     });
   });
 });
