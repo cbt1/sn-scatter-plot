@@ -18,6 +18,22 @@ export default function createRange({ models, actions, scales, chart }) {
 
   const dataHandler = chartModel.query.getDataHandler();
 
+  const legendRange =
+    createLegend({
+      actions,
+      selectionService,
+      scales,
+      legend,
+      enableInteraction: () => true,
+    }) || EMPTY;
+
+  if (!isRangeSelectionsSupported) {
+    return {
+      components: [...legendRange.components],
+      interactions: [...legendRange.interactions],
+    };
+  }
+
   const xRange =
     createXRange({
       actions,
@@ -51,22 +67,6 @@ export default function createRange({ models, actions, scales, chart }) {
       chart,
       enableInteraction: () => dataHandler.getMeta().isBinnedData,
     }) || EMPTY;
-
-  const legendRange =
-    createLegend({
-      actions,
-      selectionService,
-      scales,
-      legend,
-      enableInteraction: () => true,
-    }) || EMPTY;
-
-  if (!isRangeSelectionsSupported) {
-    return {
-      components: [...legendRange.components],
-      interactions: [...legendRange.interactions],
-    };
-  }
 
   return {
     components: [
